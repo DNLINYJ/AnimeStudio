@@ -19,6 +19,7 @@ namespace AnimeStudio
         MhyFile,
         Blb2File,
         Blb3File,
+        HYGFile,
         ENCRFile,
         BlockFile
     }

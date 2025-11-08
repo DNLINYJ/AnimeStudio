@@ -15,7 +15,7 @@ namespace AnimeStudio
         public Game Game;
         public bool Silent = false;
         public bool SkipProcess = false;
-        public bool ResolveDependencies = false;        
+        public bool ResolveDependencies = false;
         public string SpecifyUnityVersion;
         public CancellationTokenSource tokenSource = new CancellationTokenSource();
         public List<SerializedFile> assetsFileList = new List<SerializedFile>();
@@ -403,7 +403,7 @@ namespace AnimeStudio
                     }
 
                     Logger.Verbose("Load all entries");
-                    Logger.Verbose($"Found {archive.Entries.Count} entries"); 
+                    Logger.Verbose($"Found {archive.Entries.Count} entries");
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
                         try
@@ -468,8 +468,12 @@ namespace AnimeStudio
                         case FileType.MhyFile:
                             LoadMhyFile(subReader, reader.FullPath, offset, false);
                             break;
+                        case FileType.HYGFile:
+                            LoadHYGFile(subReader, reader.FullPath, offset, false);
+                            break;
+
                     }
-                }    
+                }
             }
             catch (Exception e)
             {
@@ -560,7 +564,46 @@ namespace AnimeStudio
                 reader.Dispose();
             }
         }
-        
+
+        private void LoadHYGFile(FileReader reader, string originalPath = null, long originalOffset = 0, bool log = true)
+        {
+            if (log)
+            {
+                Logger.Info("Loading " + reader.FullPath);
+            }
+            try
+            {
+                var blbFile = new HYGFile(reader, reader.FullPath);
+                foreach (var file in blbFile.fileList)
+                {
+                    var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), file.fileName);
+                    var cabReader = new FileReader(dummyPath, file.stream);
+                    if (cabReader.FileType == FileType.AssetsFile)
+                    {
+                        LoadAssetsFromMemory(cabReader, originalPath ?? reader.FullPath, blbFile.m_Header.unityRevision, originalOffset);
+                    }
+                    else
+                    {
+                        Logger.Verbose("Caching resource stream");
+                        resourceFileReaders.TryAdd(file.fileName, cabReader); //TODO
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                var str = $"Error while reading HYG file {reader.FullPath}";
+                if (originalPath != null)
+                {
+                    str += $" from {Path.GetFileName(originalPath)}";
+                }
+                Logger.Error(str, e);
+            }
+            finally
+            {
+                reader.Dispose();
+            }
+        }
+
         private void LoadBlb3File(FileReader reader, string originalPath = null, long originalOffset = 0, bool log = true)
         {
             if (log)
@@ -674,7 +717,7 @@ namespace AnimeStudio
                             ClassIDType.Mesh when ClassIDType.Mesh.CanParse() => new Mesh(objectReader),
                             ClassIDType.MeshFilter when ClassIDType.MeshFilter.CanParse() => new MeshFilter(objectReader),
                             ClassIDType.MeshRenderer when ClassIDType.MeshRenderer.CanParse() => new MeshRenderer(objectReader),
-                            ClassIDType.MiHoYoBinData when ClassIDType.MiHoYoBinData.CanParse() => new MiHoYoBinData(objectReader),
+                            //ClassIDType.MiHoYoBinData when ClassIDType.MiHoYoBinData.CanParse() => new MiHoYoBinData(objectReader),
                             ClassIDType.MonoBehaviour when ClassIDType.MonoBehaviour.CanParse() => new MonoBehaviour(objectReader),
                             ClassIDType.MonoScript when ClassIDType.MonoScript.CanParse() => new MonoScript(objectReader),
                             ClassIDType.MovieTexture when ClassIDType.MovieTexture.CanParse() => new MovieTexture(objectReader),
@@ -720,7 +763,7 @@ namespace AnimeStudio
             var fileID = 0;
 
             if (Game.Type.IsZZZGroup())
-            {   
+            {
                 // TODO: Refactor this to decrease the number of meshes. Possibly do this after we build the hierarchy to discover unused meshes (which are likely to be SeparateMeshes...)
                 // TODO: Somehow RE the behavior used to swap meshes to determine exact mappings instead of guessing by name...
                 foreach (var assetsFile in assetsFileList)
@@ -757,7 +800,7 @@ namespace AnimeStudio
                 }
                 Logger.Info($"Found {separateMeshes.Count} SeparateMeshes");
             }
-            
+
             foreach (var assetsFile in assetsFileList)
             {
                 foreach (var obj in assetsFile.Objects)
@@ -779,27 +822,27 @@ namespace AnimeStudio
                                     case Transform m_Transform:
                                         Logger.Verbose($"Fetched Transform component with {m_Transform.m_PathID} in file {m_Transform.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_Transform = m_Transform;
-                                            break;
+                                        break;
                                     case MeshRenderer m_MeshRenderer:
                                         Logger.Verbose($"Fetched MeshRenderer component with {m_MeshRenderer.m_PathID} in file {m_MeshRenderer.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_MeshRenderer = m_MeshRenderer;
-                                            break;
+                                        break;
                                     case MeshFilter m_MeshFilter:
                                         Logger.Verbose($"Fetched MeshFilter component with {m_MeshFilter.m_PathID} in file {m_MeshFilter.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_MeshFilter = m_MeshFilter;
-                                            break;
+                                        break;
                                     case SkinnedMeshRenderer m_SkinnedMeshRenderer:
                                         Logger.Verbose($"Fetched SkinnedMeshRenderer component with {m_SkinnedMeshRenderer.m_PathID} in file {m_SkinnedMeshRenderer.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_SkinnedMeshRenderer = m_SkinnedMeshRenderer;
-                                            break;
+                                        break;
                                     case Animator m_Animator:
                                         Logger.Verbose($"Fetched Animator component with {m_Animator.m_PathID} in file {m_Animator.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_Animator = m_Animator;
-                                            break;
+                                        break;
                                     case Animation m_Animation:
                                         Logger.Verbose($"Fetched Animation component with {m_Animation.m_PathID} in file {m_Animation.assetsFile.fileName}, assigning to GameObject components...");
                                         m_GameObject.m_Animation = m_Animation;
-                                            break;
+                                        break;
                                 }
                             }
                         }
@@ -858,7 +901,7 @@ namespace AnimeStudio
                                 {
                                     if (i.TryGet<MonoBehaviour>(out var comp))
                                     {
-                                        if(comp.Name == "NapLodController")
+                                        if (comp.Name == "NapLodController")
                                         {
                                             // Safely decode raw bytes to string
                                             var raw = comp.GetRawData();

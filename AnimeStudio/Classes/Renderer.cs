@@ -118,6 +118,11 @@ namespace AnimeStudio
                     {
                         var m_RayTraceProcedural = reader.ReadByte();
                     }
+                    if (reader.Game.Type.IsHYGCB1())
+                    {
+                        var m_UseOverrideAABBForCulling = reader.ReadByte();
+
+                    }
                     if (reader.Game.Type.IsGI() || reader.Game.Type.IsGICB3() || reader.Game.Type.IsGICB3Pre())
                     {
                         var m_MeshShowQuality = reader.ReadByte();
@@ -166,6 +171,11 @@ namespace AnimeStudio
                 var m_ViewDistanceRatio = reader.ReadSingle();
                 var m_ShaderLODDistanceRatio = reader.ReadSingle();
             }
+            if (reader.Game.Type.IsHYGCB1())
+            {
+                var m_ViewDistanceRatio = reader.ReadSingle();
+            }
+
             var m_MaterialsSize = reader.ReadInt32();
             m_Materials = new List<PPtr<Material>>();
             for (int i = 0; i < m_MaterialsSize; i++)
@@ -198,23 +208,23 @@ namespace AnimeStudio
 
             if (!reader.Game.Type.IsSR() || !HasPrope(reader.serializedType))
             {
-            if (version[0] > 5 || (version[0] == 5 && version[1] >= 4)) //5.4 and up
-            {
-                var m_ProbeAnchor = new PPtr<Transform>(reader);
-                var m_LightProbeVolumeOverride = new PPtr<GameObject>(reader);
-            }
-            else if (version[0] > 3 || (version[0] == 3 && version[1] >= 5)) //3.5 - 5.3
-            {
-                var m_UseLightProbes = reader.ReadBoolean();
-                reader.AlignStream();
-
-                if (version[0] >= 5)//5.0 and up
+                if (version[0] > 5 || (version[0] == 5 && version[1] >= 4)) //5.4 and up
                 {
-                    var m_ReflectionProbeUsage = reader.ReadInt32();
+                    var m_ProbeAnchor = new PPtr<Transform>(reader);
+                    var m_LightProbeVolumeOverride = new PPtr<GameObject>(reader);
                 }
+                else if (version[0] > 3 || (version[0] == 3 && version[1] >= 5)) //3.5 - 5.3
+                {
+                    var m_UseLightProbes = reader.ReadBoolean();
+                    reader.AlignStream();
 
-                var m_LightProbeAnchor = new PPtr<Transform>(reader); //5.0 and up m_ProbeAnchor
-            }
+                    if (version[0] >= 5)//5.0 and up
+                    {
+                        var m_ReflectionProbeUsage = reader.ReadInt32();
+                    }
+
+                    var m_LightProbeAnchor = new PPtr<Transform>(reader); //5.0 and up m_ProbeAnchor
+                }
             }
 
             if (version[0] > 4 || (version[0] == 4 && version[1] >= 3)) //4.3 and up

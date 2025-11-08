@@ -41,6 +41,7 @@ namespace AnimeStudio
         Zstd = 5,
         Lz4Lit4 = 4,
         Lz4Lit5 = 5,
+        Lz4HYG = 5,
         OodleHSR = 6,
         OodleMr0k = 7,
         Oodle = 9,
@@ -116,7 +117,7 @@ namespace AnimeStudio
         private List<StorageBlock> m_BlocksInfo;
 
         public List<StreamFile> fileList;
-        
+
         private bool HasUncompressedDataHash = true;
         private bool HasBlockInfoNeedPaddingAtStart = true;
 
@@ -355,7 +356,7 @@ namespace AnimeStudio
 
                 XORShift128.Init = false;
                 Logger.Verbose($"Bundle header decrypted");
-               
+
                 var encUnityVersion = reader.ReadStringToNull();
                 var encUnityRevision = reader.ReadStringToNull();
                 return;
@@ -633,7 +634,7 @@ namespace AnimeStudio
                                         }
                                     }
                                 }
-                                
+
                                 if (compressionType == CompressionType.Lz4Mr0k && Mr0kUtils.IsMr0k(compressedBytes))
                                 {
                                     Logger.Verbose($"Block encrypted with mr0k, decrypting...");

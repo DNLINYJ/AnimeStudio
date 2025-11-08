@@ -101,7 +101,7 @@ namespace AnimeStudio
             const int PackSize = 0x880;
             const string PackSignature = "pack";
             const string UnityFSSignature = "UnityFS";
-           
+
             var data = reader.ReadBytes((int)reader.Length);
             var packIdx = data.Search(PackSignature);
             if (packIdx == -1)
@@ -203,7 +203,7 @@ namespace AnimeStudio
                         reader.BaseStream.CopyTo(ms, header.size);
                         continue;
                     }
-                    
+
                     throw new InvalidOperationException($"Expected signature {PackSignature} or {UnityFSSignature}, got {signature} instead !!");
                 }
             }
@@ -326,7 +326,7 @@ namespace AnimeStudio
             Logger.Verbose("Parsed fake header file successfully !!");
             return new FileReader(reader.FullPath, stream);
         }
-        
+
         public static FileReader DecryptFantasyOfWind(FileReader reader)
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with Fantasy of Wind encryption");
@@ -374,7 +374,7 @@ namespace AnimeStudio
             var data = reader.ReadBytes(encryptedLength);
             for (int i = 0; i < encryptedLength; i++)
             {
-                data[i] ^= key[i % key.Length]; 
+                data[i] ^= key[i % key.Length];
             }
 
             MemoryStream ms = new();
@@ -426,7 +426,7 @@ namespace AnimeStudio
             for (int i = 0; i < data.Length; i++)
             {
                 var idx = data[i];
-                data[i] = key[idx]; 
+                data[i] = key[idx];
             }
 
             Logger.Verbose("Decrypted Helix Waltz 2 file successfully !!");
@@ -491,7 +491,7 @@ namespace AnimeStudio
 
                 return fileSize % 2 == chunkIndex % 2;
             }
-            
+
             byte[] GetKey(string fileName)
             {
                 const string Key = "KxZKZolAT3QXvsUU";
@@ -588,7 +588,7 @@ namespace AnimeStudio
             Logger.Verbose($"Decrypted File info: Flag 0x{flag:X8} | Compressed blockInfo size 0x{compressedBlocksInfoSize:X8} | Decompressed blockInfo size 0x{uncompressedBlocksInfoSize:X8} | Bundle size 0x{size:X8}");
 
             var blocksInfo = reader.ReadBytes((int)compressedBlocksInfoSize);
-            for(int i = 0; i < blocksInfo.Length; i++)
+            for (int i = 0; i < blocksInfo.Length; i++)
             {
                 blocksInfo[i] ^= key[i % key.Length];
             }
@@ -671,7 +671,7 @@ namespace AnimeStudio
             if (startIdx != -1 && startIdx != paths.Length - 1)
             {
                 Logger.Verbose("File is in the data folder !!");
-                var path = string.Join(Path.AltDirectorySeparatorChar, paths[(startIdx+1)..]);
+                var path = string.Join(Path.AltDirectorySeparatorChar, paths[(startIdx + 1)..]);
                 var offset = GetLoadAssetBundleOffset(path);
                 if (offset > 0 && offset < reader.Length)
                 {
@@ -793,7 +793,7 @@ namespace AnimeStudio
 
             return new FileReader(reader.FullPath, ms);
         }
-        
+
         public static FileReader DecryptProjectSekai(FileReader reader)
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with Project Sekai encryption");
@@ -831,7 +831,7 @@ namespace AnimeStudio
             ms.Position = 0;
             return new FileReader(reader.FullPath, ms);
         }
-        
+
         public static FileReader DecryptCodenameJump(FileReader reader)
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with Codename Jump encryption");
@@ -864,7 +864,7 @@ namespace AnimeStudio
             ms.Position = 0;
             return new FileReader(reader.FullPath, ms);
         }
-        
+
         public static FileReader DecryptGirlsFrontline(FileReader reader)
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with Girls Frontline encryption");
@@ -893,7 +893,7 @@ namespace AnimeStudio
             ms.Position = 0;
             return new FileReader(reader.FullPath, ms);
         }
-        
+
         public static FileReader DecryptReverse1999(FileReader reader)
         {
             Logger.Verbose($"Attempting to decrypt file {reader.FileName} with Reverse: 1999 encryption");

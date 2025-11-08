@@ -21,6 +21,8 @@ namespace AnimeStudio
         private static readonly byte[] blb3Magic = { 0x42, 0x6C, 0x62, 0x03 };
         private static readonly byte[] narakaMagic = { 0x15, 0x1E, 0x1C, 0x0D, 0x0D, 0x23, 0x21 };
         private static readonly byte[] gunfireMagic = { 0x7C, 0x6D, 0x79, 0x72, 0x27, 0x7A, 0x73, 0x78, 0x3F };
+        private static readonly byte[] HYGMagic = { 0xC3, 0x9C, 0xC3, 0xA3, 0xC3, 0x8A };
+
 
 
         public FileReader(string path) : this(path, File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) { }
@@ -98,6 +100,13 @@ namespace AnimeStudio
                             return FileType.Blb3File;
                         }
                         Logger.Verbose($"Parsed signature does not match with expected signature {Convert.ToHexString(blb3Magic)}");
+                        magic = ReadBytes(6);
+                        Position = 0;
+                        if (HYGMagic.SequenceEqual(magic))
+                        {
+                            return FileType.HYGFile;
+                        }
+                        Logger.Verbose($"Parsed signature does not match with expected signature {Convert.ToHexString(HYGMagic)}");
                         magic = ReadBytes(7);
                         Position = 0;
                         Logger.Verbose($"Parsed signature is {Convert.ToHexString(magic)}");
@@ -215,7 +224,7 @@ namespace AnimeStudio
                         break;
                     case GameType.GirlsFrontline:
                         reader = DecryptGirlsFrontline(reader);
-                        break; 
+                        break;
                     case GameType.Reverse1999:
                         reader = DecryptReverse1999(reader);
                         break;
@@ -236,6 +245,12 @@ namespace AnimeStudio
                         break;
                 }
             }
+
+            if (reader.FileType == FileType.HYGFile)
+            {
+                reader.FileType = FileType.BlockFile;
+            }
+
             if (reader.FileType == FileType.BundleFile && game.Type.IsBlockFile() || reader.FileType == FileType.ENCRFile || reader.FileType == FileType.Blb2File || reader.FileType == FileType.Blb3File)
             {
                 Logger.Verbose("File might have multiple bundles !!");
@@ -265,5 +280,5 @@ namespace AnimeStudio
             Logger.Verbose("No preprocessing is needed");
             return reader;
         }
-    } 
+    }
 }
