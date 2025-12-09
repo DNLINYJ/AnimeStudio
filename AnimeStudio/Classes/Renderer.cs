@@ -100,7 +100,7 @@ namespace AnimeStudio
                     if (version[0] >= 2021) //2021.1 and up
                     {
                         var m_StaticShadowCaster = reader.ReadByte();
-                        if (reader.Game.Type.IsArknightsEndfield())
+                        if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
                         {
                             var m_RealtimeShadowCaster = reader.ReadByte();
                             var m_SubMeshRenderMode = reader.ReadByte();

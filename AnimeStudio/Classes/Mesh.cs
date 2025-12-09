@@ -626,7 +626,7 @@ namespace AnimeStudio
                     {
                         var m_VertexColorSkinning = reader.ReadBoolean();
                     }
-                    if (reader.Game.Type.IsArknightsEndfield())
+                    if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
                     {
                         var m_CollisionMeshOnly = reader.ReadBoolean();
                         m_CollisionMeshBaked = reader.ReadBoolean();
@@ -792,7 +792,7 @@ namespace AnimeStudio
                 var m_MeshMetrics = new float[2];
                 m_MeshMetrics[0] = reader.ReadSingle();
                 m_MeshMetrics[1] = reader.ReadSingle();
-                if (reader.Game.Type.IsArknightsEndfield())
+                if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
                 {
                     var m_MeshMetrics2 = reader.ReadSingle();
                 }

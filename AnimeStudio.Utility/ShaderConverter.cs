@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Vortice.D3DCompiler;
+using ZstdNet;
 
 namespace AnimeStudio
 {
@@ -60,6 +61,13 @@ namespace AnimeStudio
                     if (shader.assetsFile.game.Type.IsGISubGroup())
                     {
                         Buffer.BlockCopy(shader.compressedBlob, (int)offset, decompressedBytes, 0, (int)decompressedLength);
+                    }
+                    else if (shader.assetsFile.game.Type.IsArkEndCB3()) // 终末地三测 shader使用zstd压缩
+                    {
+                        using (var decompressor = new ZstdNet.Decompressor())
+                        {
+                            decompressedBytes = decompressor.Unwrap(shader.compressedBlob);
+                        }
                     }
                     else
                     {

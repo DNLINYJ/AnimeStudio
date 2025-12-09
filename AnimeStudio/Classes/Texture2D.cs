@@ -58,6 +58,10 @@ namespace AnimeStudio
                 var m_UseGlobalTrilinearSetting = reader.ReadInt32();
                 reader.AlignStream();
             }
+            if (reader.Game.Type.IsArkEndCB3())
+            {
+                var m_TextureGroup = reader.ReadUInt32();
+            }
         }
     }
 
@@ -143,7 +147,7 @@ namespace AnimeStudio
                 var m_IsCompressed = reader.ReadBoolean();
                 reader.AlignStream();
             }
-            if (reader.Game.Type.IsHYGCB1())
+            if (reader.Game.Type.IsHYGCB1() || reader.Game.Type.IsArkEndCB3())
             {
                 reader.AlignStream();
             }

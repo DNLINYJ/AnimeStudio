@@ -494,7 +494,7 @@ namespace AnimeStudio
             if (version[0] == 2022 && version[1] >= 2) //2022.2 and up
             {
                 flags = reader.ReadInt32();
-        }
+            }
         }
 
         public YAMLNode ExportYAML(int[] version)
@@ -1142,7 +1142,7 @@ namespace AnimeStudio
         public ACLDenseClip(ObjectReader reader) : base(reader)
         {
             m_ACLType = reader.ReadInt32();
-            if (reader.Game.Type.IsArknightsEndfield())
+            if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
             {
                 m_ACLArray = reader.ReadUInt8Array();
                 reader.AlignStream();
@@ -1323,7 +1323,7 @@ namespace AnimeStudio
         {
             var version = reader.version;
             m_StreamedClip = new StreamedClip(reader);
-            if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsExAstris())
+            if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsExAstris() || reader.Game.Type.IsArkEndCB3())
             {
                 m_DenseClip = new ACLDenseClip(reader);
             }
@@ -1943,7 +1943,7 @@ namespace AnimeStudio
 
             m_SampleRate = reader.ReadSingle();
             m_WrapMode = reader.ReadInt32();
-            if (reader.Game.Type.IsArknightsEndfield())
+            if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
             {
                 var m_aclType = reader.ReadInt32();
             }

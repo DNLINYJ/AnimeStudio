@@ -622,7 +622,7 @@ namespace AnimeStudio
         public SerializedSubProgram(ObjectReader reader)
         {
             var version = reader.version;
-            
+
             if (reader.Game.Type.IsLoveAndDeepspace())
             {
                 var m_CodeHash = new Hash128(reader);
@@ -744,7 +744,8 @@ namespace AnimeStudio
                             m_Samplers.Add(new SamplerParameter(reader));
                         }
                     }
-                } catch (System.IO.EndOfStreamException)
+                }
+                catch (System.IO.EndOfStreamException)
                 {
                     Logger.Error($"Cannot parse shader, no more bytes left for asset {reader.assetsFile.fileName} of {reader.assetsFile.originalPath} at path {reader.m_PathID}.");
                     return;
@@ -902,8 +903,10 @@ namespace AnimeStudio
                     m_EditorDataHash.Add(new Hash128(reader));
                 }
                 reader.AlignStream();
+
                 m_Platforms = reader.ReadUInt8Array();
                 reader.AlignStream();
+
                 if (version[0] < 2021 || (version[0] == 2021 && version[1] < 2)) //2021.1 and down
                 {
                     m_LocalKeywordMask = reader.ReadUInt16Array();
@@ -936,6 +939,11 @@ namespace AnimeStudio
             if (version[0] >= 2018) //2018 and up
             {
                 var m_HasProceduralInstancingVariant = reader.ReadBoolean();
+            }
+            if (reader.Game.Type.IsArkEndCB3())
+            {
+                var m_HasSRPInstancingVariant = reader.ReadBoolean();
+                var m_HasHGECSInstancingVariant = reader.ReadBoolean();
             }
             reader.AlignStream();
             m_UseName = reader.ReadAlignedString();
@@ -1152,7 +1160,8 @@ namespace AnimeStudio
                 try
                 {
                     m_ParsedForm = new SerializedShader(reader);
-                } catch (System.IO.EndOfStreamException)
+                }
+                catch (System.IO.EndOfStreamException)
                 {
                     Logger.Error($"Cannot parse shader, no more bytes left for asset {reader.assetsFile.fileName} of {reader.assetsFile.originalPath} at path {reader.m_PathID}.");
                     return;

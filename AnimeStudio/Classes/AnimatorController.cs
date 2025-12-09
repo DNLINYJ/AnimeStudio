@@ -315,7 +315,7 @@ namespace AnimeStudio
                 || (version[0] == 4 && version[1] == 1 && version[2] >= 3)) //4.1.3 and up
             {
                 m_CycleOffset = reader.ReadSingle();
-                if (reader.Game.Type.IsArknightsEndfield())
+                if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
                 {
                     var m_StateNameHash = reader.ReadUInt32();
                 }
@@ -445,7 +445,7 @@ namespace AnimeStudio
                 m_Mirror = reader.ReadBoolean();
             }
 
-            if (reader.Game.Type.IsArknightsEndfield())
+            if (reader.Game.Type.IsArknightsEndfield() || reader.Game.Type.IsArkEndCB3())
             {
                 var m_SyncGroupID = reader.ReadUInt32();
                 var m_SyncGroupRole = reader.ReadUInt32();

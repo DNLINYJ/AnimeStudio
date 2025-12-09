@@ -70,6 +70,7 @@ namespace AnimeStudio
 
             Games.Add(index++, new Game(GameType.HYG_CB1, "HYG CBT 1"));
 
+            Games.Add(index++, new Game(GameType.ArkEnd_CB3, "明日方舟:终末地 三测"));
 
             // unity cn
             var list = UnityCNManager.ReadJson();
@@ -254,6 +255,7 @@ namespace AnimeStudio
         UnityCNCustomKey,
 
         HYG_CB1,
+        ArkEnd_CB3,
     }
 
 
@@ -294,6 +296,7 @@ namespace AnimeStudio
         public static bool IsExAstris(this GameType type) => type == GameType.ExAstris;
         public static bool IsPerpetualNovelty(this GameType type) => type == GameType.PerpetualNovelty;
         public static bool IsHYGCB1(this GameType type) => type == GameType.HYG_CB1;
+        public static bool IsArkEndCB3(this GameType type) => type == GameType.ArkEnd_CB3;
         public static bool IsGIGroup(this GameType type) => type switch
         {
             GameType.GI or GameType.GI_Pack or GameType.GI_CB1 or GameType.GI_CB2 or GameType.GI_CB3 or GameType.GI_CB3Pre => true,
