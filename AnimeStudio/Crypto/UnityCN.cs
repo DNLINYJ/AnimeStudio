@@ -13,6 +13,13 @@ namespace AnimeStudio
         public byte[] Index = new byte[0x10];
         public byte[] Sub = new byte[0x10];
 
+        /// <summary>Pre-computed tables constructor (for Manjuu / keyless recovery).</summary>
+        public UnityCN(byte[] index, byte[] sub)
+        {
+            index.CopyTo(Index, 0);
+            sub.CopyTo(Sub, 0);
+        }
+
         public UnityCN(EndianBinaryReader reader)
         {
             reader.ReadUInt32();

@@ -111,6 +111,7 @@ namespace AnimeStudio
 
         private Game Game;
         private UnityCN UnityCN;
+        private ManjuuHeader m_ManjuuHeader;
 
         public Header m_Header;
         private List<Node> m_DirectoryInfo;
@@ -145,7 +146,11 @@ namespace AnimeStudio
                 case "UnityFS":
                 case "ENCR":
                     ReadHeader(reader);
-                    if (game.IsUnityCN())
+                    if (game.Type.IsAzurPromilia())
+                    {
+                        ReadManjuu(reader);
+                    }
+                    else if (game.IsUnityCN())
                     {
                         ReadUnityCN(reader);
                     }
@@ -410,6 +415,50 @@ namespace AnimeStudio
             }
         }
 
+        /// <summary>
+        /// Read Manjuu-specific encrypted header fields (flags &amp; 0x400).
+        /// Consumes: u32 extra_field + (16+16+1) a4 block + (16+16+1) a5 block = 70 bytes.
+        /// Recovers the permutation table and initialises UnityCN for data-block decryption.
+        /// </summary>
+        private void ReadManjuu(FileReader reader)
+        {
+            if ((m_Header.flags & ArchiveFlags.UnityCNEncryption) == 0)
+                return;
+
+            Logger.Verbose($"[Manjuu] Reading encrypted header fields");
+            m_ManjuuHeader = ManjuuUtils.ReadHeader(reader);
+
+            byte[] perm = null, extra = null;
+
+            // Keyless nonce-reuse recovery (works when a4_ctr == a5_ctr)
+            try
+            {
+                (perm, extra) = ManjuuUtils.RecoverKeyless(m_ManjuuHeader);
+                Logger.Verbose($"[Manjuu] Keyless recovery OK, perm=[{string.Join(",", perm)}]");
+            }
+            catch (Exception ex)
+            {
+                Logger.Verbose($"[Manjuu] Keyless recovery failed: {ex.Message}");
+            }
+
+            // Fall back to key-based recovery if a key is configured
+            if (perm == null && Game is ManjuuGame mGame && mGame.HasKey)
+            {
+                try
+                {
+                    (perm, extra) = ManjuuUtils.DecryptAndVerify(m_ManjuuHeader, mGame.Key);
+                    Logger.Verbose($"[Manjuu] Key-based recovery OK");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Verbose($"[Manjuu] Key-based recovery failed: {ex.Message}");
+                }
+            }
+
+            if (perm != null)
+                UnityCN = new UnityCN(perm, extra);
+        }
+
         private void ReadBlocksInfoAndDirectory(FileReader reader)
         {
             byte[] blocksInfoBytes;
@@ -643,6 +692,11 @@ namespace AnimeStudio
                                 if (Game.IsUnityCN() && ((int)blockInfo.flags & 0x100) != 0)
                                 {
                                     Logger.Verbose($"Decrypting block with UnityCN...");
+                                    UnityCN.DecryptBlock(compressedBytes, compressedSize, i);
+                                }
+                                if (Game.Type.IsAzurPromilia() && ((int)blockInfo.flags & 0x100) != 0 && UnityCN != null)
+                                {
+                                    Logger.Verbose($"[Manjuu] Decrypting block {i}...");
                                     UnityCN.DecryptBlock(compressedBytes, compressedSize, i);
                                 }
                                 if (Game.Type.IsNetEase() && i == 0)

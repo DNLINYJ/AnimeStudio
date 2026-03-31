@@ -72,7 +72,8 @@ namespace AnimeStudio
             Games.Add(index++, new Game(GameType.ExAstris, "ExAstris"));
             Games.Add(index++, new Game(GameType.PerpetualNovelty, "Perpetual Novelty"));
             Games.Add(index++, new Game(GameType.RewindingCadence, "Rewinding Cadence"));
-            
+            Games.Add(index++, new ManjuuGame(GameType.AzurPromilia_CB2, "AzurPromilia CB2"));
+
             // unity cn
             var list = UnityCNManager.ReadJson();
 
@@ -186,6 +187,38 @@ namespace AnimeStudio
         }
     }
 
+    /// <summary>
+    /// AzurPromilia (蔚蓝档案 / Blue Archive by Manjuu/Yostar).
+    /// UnityFS with flags &amp; 0x400 = Manjuu AES-128-CTR header encryption.
+    /// Provide a 16-byte AES key via SetKey() to decrypt BlocksInfo.
+    /// Without the key, use ManjuuUtils.RecoverKeyless() for the permutation table only.
+    /// </summary>
+    public record ManjuuGame : Game
+    {
+        public byte[] Key { get; private set; }
+
+        public ManjuuGame(GameType type, string displayName, byte[] key = null)
+            : base(type, displayName, GameCategory.Other)
+        {
+            Key = key;
+        }
+
+        public bool SetKey(string hexKey)
+        {
+            try
+            {
+                var k = Convert.FromHexString(hexKey.Replace(" ", "").Replace("-", ""));
+                if (k.Length != 16) return false;
+                Key = k;
+                Logger.Verbose($"[Manjuu] Key set: {hexKey}");
+                return true;
+            }
+            catch { return false; }
+        }
+
+        public bool HasKey => Key != null && Key.Length == 16;
+    }
+
     public enum GameType
     {
         Normal,
@@ -260,6 +293,7 @@ namespace AnimeStudio
         CatFantasy,
         UnityCNCustomKey,
         RewindingCadence,
+        AzurPromilia_CB2,
     }
 
 
@@ -304,6 +338,8 @@ namespace AnimeStudio
         public static bool IsExAstris(this GameType type) => type == GameType.ExAstris;
         public static bool IsPerpetualNovelty(this GameType type) => type == GameType.PerpetualNovelty;
         public static bool IsRewindingCadence(this GameType type) => type == GameType.RewindingCadence;
+        public static bool IsAzurPromilia(this GameType type) => type == GameType.AzurPromilia_CB2;
+        public static bool IsAzurPromiliaGroup(this GameType type) => type == GameType.AzurPromilia_CB2;
         public static bool IsGIGroup(this GameType type) => type switch
         {
             GameType.GI or GameType.GI_Pack or GameType.GI_CB1 or GameType.GI_CB2 or GameType.GI_CB3 or GameType.GI_CB3Pre => true,

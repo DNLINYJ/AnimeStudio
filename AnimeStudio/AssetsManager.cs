@@ -583,13 +583,16 @@ namespace AnimeStudio
 
         public void CheckStrippedVersion(SerializedFile assetsFile)
         {
-            if (assetsFile.IsVersionStripped && string.IsNullOrEmpty(SpecifyUnityVersion))
+            var effectiveVersion = SpecifyUnityVersion;
+            if (string.IsNullOrEmpty(effectiveVersion) && Game?.Type.IsAzurPromilia() == true)
+                effectiveVersion = "2022.3.62f3";
+            if (assetsFile.IsVersionStripped && string.IsNullOrEmpty(effectiveVersion))
             {
                 throw new Exception("The Unity version has been stripped, please set the version in the options");
             }
-            if (!string.IsNullOrEmpty(SpecifyUnityVersion))
+            if (!string.IsNullOrEmpty(effectiveVersion))
             {
-                assetsFile.SetVersion(SpecifyUnityVersion);
+                assetsFile.SetVersion(effectiveVersion);
             }
         }
 
