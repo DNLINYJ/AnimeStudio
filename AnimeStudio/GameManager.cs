@@ -372,7 +372,7 @@ namespace AnimeStudio
 
         public static bool IsBlockFile(this GameType type) => type switch
         {
-            GameType.BH3 or GameType.BH3Pre or GameType.ZZZ_CB2 or GameType.ZZZ or GameType.SR or GameType.GI_Pack or GameType.TOT or GameType.ArknightsEndfieldCB2 => true,
+            GameType.BH3 or GameType.BH3Pre or GameType.ZZZ_CB2 or GameType.ZZZ or GameType.SR or GameType.GI_Pack or GameType.TOT or GameType.ArknightsEndfieldCB2 or GameType.AzurPromilia_CB2 => true,
             _ => false,
         };
 
